@@ -1,0 +1,22 @@
+name: Packer iso creation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v2
+      - name: Set up Packer
+        uses:  hashicorp/setup-packer@main
+    
+      - name: ISO image creation with Packer
+        run: |
+            packer build -var-file=variables.json ubuntu-20.04-amd64.json
+            
+      
