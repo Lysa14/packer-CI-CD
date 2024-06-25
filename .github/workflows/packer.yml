@@ -21,7 +21,12 @@ jobs:
 
       - name: Install Dependencies
         run: sudo apt-get install -y patch
-
+    
+      - name: Install Packer Plugins
+        run: |
+          packer plugins install github.com/hashicorp/packer-plugin-virtualbox
+          packer plugins install github.com/hashicorp/packer-plugin-vagrant
+          
       - name: Find Packer Template
         id: find-template
         run: |
