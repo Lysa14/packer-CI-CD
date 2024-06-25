@@ -1,7 +1,10 @@
-name: Packer iso creation
+name: Build Image with Packer
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
 
@@ -10,13 +13,55 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout du code
+      - name: Checkout repository
         uses: actions/checkout@v2
+
       - name: Set up Packer
-        uses:  hashicorp/setup-packer@main
-    
-      - name: ISO image creation with Packer
+        uses: hashicorp/setup-packer@main
+
+      - name: Install Dependencies
+        run: sudo apt-get install -y patch
+
+      - name: Find Packer Template
+        id: find-template
         run: |
-            packer build -var-file=variables.json ubuntu-20.04-amd64.json
-            
-      
+          TEMPLATE=$(find . -type f \( -name "*.pkr.hcl" -o -name "*.json" \) | head -n 1)
+          if [ -z "$TEMPLATE" ]; then
+            echo "No Packer template found!"
+            exit 1
+          fi
+          echo "::set-output name=template::$TEMPLATE"
+
+      - name: Find Patch File
+        id: find-patch
+        run: |
+          PATCH=$(find . -type f -name "*.patch" | head -n 1)
+          if [ -z "$PATCH" ]; then
+            echo "No patch file found!"
+            exit 1
+          fi
+          echo "::set-output name=patch::$PATCH"
+
+      - name: Find Provisioning Script
+        id: find-script
+        run: |
+          SCRIPT=$(find . -type f -name "*.sh" | head -n 1)
+          if [ -z "$SCRIPT" ]; then
+            echo "No provisioning script found!"
+            exit 1
+          fi
+          echo "::set-output name=script::$SCRIPT"
+
+      - name: Copy Files
+        run: |
+          cp ${{ steps.find-script.outputs.script }} /tmp/apply_patch.sh
+          cp ${{ steps.find-patch.outputs.patch }} /tmp/my-patch.patch
+
+      - name: Build with Packer
+        run: packer build ${{ steps.find-template.outputs.template }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: built-image
+          path: output/

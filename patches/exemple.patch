@@ -1,0 +1,7 @@
+--- original_file.txt 2023-06-24 12:34:56.000000000 +0000
++++ patched_file.txt 2023-06-24 12:34:56.000000000 +0000
+@@ -1,3 +1,3 @@
+-Original line 1
++Patched line 1
+ Original line 2
+ Original line 3
