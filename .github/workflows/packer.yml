@@ -1,4 +1,4 @@
-name: Build and Publish OMI
+name: Build and Publish OMI at outscale
 
 on:
   push:
