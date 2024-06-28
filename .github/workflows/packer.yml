@@ -25,6 +25,8 @@ jobs:
         wget https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
         unzip packer_1.7.8_linux_amd64.zip
         sudo mv packer /usr/local/bin/
+        wget https://github.com/outscale-dev/packer-plugin-outscale/releases/download/v0.0.3/packer-plugin-outscale-v0.0.3-linux-amd64.zip
+        unzip packer-plugin-outscale-v0.0.3-linux-amd64.zip -d  ~/.packer.d/plugins
 
 
     - name: Set up Outscale credentials
