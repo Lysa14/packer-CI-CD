@@ -1,9 +1,9 @@
-name: Build and Publish OMI with Packer in outscale
+name: Build and Publish OMI
 
 on:
   push:
     branches:
-      - packer
+      - main
 
 jobs:
   build-and-publish:
@@ -25,10 +25,11 @@ jobs:
     - name: Set up Outscale credentials
       run: |
         mkdir -p ~/.osc
-        echo "[default]" > ~/.osc/config
-        echo "access_key = ${{ secrets.OUTSCALE_ACCESS_KEY }}" >> ~/.osc/config
-        echo "secret_key = ${{ secrets.OUTSCALE_SECRET_KEY }}" >> ~/.osc/config
-        echo "region = ${{ secrets.OUTSCALE_REGION }}" >> ~/.osc/config
+        echo "[default]" > ~/.osc/credentials
+        echo "access_key = ${{ secrets.OUTSCALE_ACCESS_KEY }}" >> ~/.osc/credentials
+        echo "secret_key = ${{ secrets.OUTSCALE_SECRET_KEY }}" >> ~/.osc/credentials
+        echo "[default]" > ~/.osc/config.json
+        echo '{ "host": "outscale", "protocol": "https", "region": "'${{ secrets.OUTSCALE_REGION }}'" }' >> ~/.osc/config.json
 
     - name: Install Packer
       run: |
@@ -44,10 +45,10 @@ jobs:
         {
           "builders": [
             {
-              "type": "amazon-ebs",
-              "access_key": "${{ secrets.OUTSCALE_ACCESS_KEY }}",
-              "secret_key": "${{ secrets.OUTSCALE_SECRET_KEY }}",
-              "region": "${{ secrets.OUTSCALE_REGION }}",
+              "type": "outscale-ebs",
+              "access_key": "$${{ secrets.OUTSCALE_ACCESS_KEY }}",
+              "secret_key": "$${{ secrets.OUTSCALE_SECRET_KEY }}",
+              "region": "$${{ secrets.OUTSCALE_REGION }}",
               "source_ami": "ami-321efe20",
               "instance_type": "t2.micro",
               "ssh_username": "ec2-user",
