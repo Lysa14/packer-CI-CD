@@ -1,4 +1,4 @@
-name: Build and Publish OMI at outscale
+name: Build and Publish OMI
 
 on:
   push:
@@ -18,27 +18,26 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Install Outscale CLI
+    - name: Install required tools
       run: |
-        pip install osc-sdk
+        sudo apt-get update
+        sudo apt-get install -y unzip wget
+        wget https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
+        unzip packer_1.7.8_linux_amd64.zip
+        sudo mv packer /usr/local/bin/
+        wget https://github.com/outscale-dev/packer-plugin-outscale/releases/download/v0.0.3/packer-plugin-outscale-v0.0.3-linux-amd64.zip
+        unzip packer-plugin-outscale-v0.0.3-linux-amd64.zip
+        mkdir -p ~/.packer.d/plugins
+        mv packer-plugin-outscale ~/.packer.d/plugins/
 
     - name: Set up Outscale credentials
       run: |
         mkdir -p ~/.osc
-        echo "[default]" > ~/.osc/credentials
-        echo "access_key = ${{ secrets.OUTSCALE_ACCESS_KEY }}" >> ~/.osc/credentials
-        echo "secret_key = ${{ secrets.OUTSCALE_SECRET_KEY }}" >> ~/.osc/credentials
-        echo "[default]" > ~/.osc/config.json
-        echo '{ "host": "outscale", "protocol": "https", "region": "'${{ secrets.OUTSCALE_REGION }}'" }' >> ~/.osc/config.json
+        echo "[default]" > ~/.osc/config
+        echo "aws_access_key_id = ${{ secrets.OUTSCALE_ACCESS_KEY }}" >> ~/.osc/config
+        echo "aws_secret_access_key = ${{ secrets.OUTSCALE_SECRET_KEY }}" >> ~/.osc/config
+        echo "region = ${{ secrets.OUTSCALE_REGION }}" >> ~/.osc/config
 
-    - name: Install Packer
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y unzip
-        wget https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
-        unzip packer_1.7.8_linux_amd64.zip
-        sudo mv packer /usr/local/bin/
-    
     - name: Create Packer template
       run: |
         cat <<EOF > packer-template.json
@@ -46,9 +45,9 @@ jobs:
           "builders": [
             {
               "type": "outscale-ebs",
-              "access_key": "$${{ secrets.OUTSCALE_ACCESS_KEY }}",
-              "secret_key": "$${{ secrets.OUTSCALE_SECRET_KEY }}",
-              "region": "$${{ secrets.OUTSCALE_REGION }}",
+              "access_key": "${{ secrets.OUTSCALE_ACCESS_KEY }}",
+              "secret_key": "${{ secrets.OUTSCALE_SECRET_KEY }}",
+              "region": "${{ secrets.OUTSCALE_REGION }}",
               "source_ami": "ami-321efe20",
               "instance_type": "t2.micro",
               "ssh_username": "ec2-user",
@@ -72,4 +71,3 @@ jobs:
       run: |
         packer validate packer-template.json
         packer build packer-template.json
-
