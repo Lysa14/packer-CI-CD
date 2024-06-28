@@ -1,72 +1,74 @@
-name: Build Image with Packer
+name: Build and Publish OMI with Packer in outscale
 
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - packer
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up Packer
-        uses: hashicorp/setup-packer@main
+    - name: Set up Python environment
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
 
-      - name: Install Dependencies
-        run: sudo apt-get install -y patch
+    - name: Install Outscale CLI
+      run: |
+        pip install osc-sdk
+
+    - name: Set up Outscale credentials
+      run: |
+        mkdir -p ~/.osc
+        echo "[default]" > ~/.osc/config
+        echo "access_key = ${{ secrets.OUTSCALE_ACCESS_KEY }}" >> ~/.osc/config
+        echo "secret_key = ${{ secrets.OUTSCALE_SECRET_KEY }}" >> ~/.osc/config
+        echo "region = ${{ secrets.OUTSCALE_REGION }}" >> ~/.osc/config
+
+    - name: Install Packer
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y unzip
+        wget https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
+        unzip packer_1.7.8_linux_amd64.zip
+        sudo mv packer /usr/local/bin/
     
-      - name: Install Packer Plugins
-        run: |
-          packer plugins install github.com/hashicorp/packer-plugin-virtualbox
-          packer plugins install github.com/hashicorp/packer-plugin-vagrant
-          
-      - name: Find Packer Template
-        id: find-template
-        run: |
-          TEMPLATE=$(find . -type f \( -name "*.pkr.hcl" -o -name "*.json" \) | head -n 1)
-          if [ -z "$TEMPLATE" ]; then
-            echo "No Packer template found!"
-            exit 1
-          fi
-          echo "::set-output name=template::$TEMPLATE"
+    - name: Create Packer template
+      run: |
+        cat <<EOF > packer-template.json
+        {
+          "builders": [
+            {
+              "type": "amazon-ebs",
+              "access_key": "${{ secrets.OUTSCALE_ACCESS_KEY }}",
+              "secret_key": "${{ secrets.OUTSCALE_SECRET_KEY }}",
+              "region": "${{ secrets.OUTSCALE_REGION }}",
+              "source_ami": "ami-321efe20",
+              "instance_type": "t2.micro",
+              "ssh_username": "ec2-user",
+              "ami_name": "patched-omi-{{timestamp}}"
+            }
+          ],
+          "provisioners": [
+            {
+              "type": "shell",
+              "inline": [
+                "sudo mv /tmp/script.sh /opt/bootscript.sh",
+                "sudo mv /tmp/setup_boot.service /usr/lib/systemd/system/setup_boot.service",
+                "sudo systemctl enable setup_boot.service"
+              ]
+            }
+          ]
+        }
+        EOF
 
-      - name: Find Patch File
-        id: find-patch
-        run: |
-          PATCH=$(find . -type f -name "*.patch" | head -n 1)
-          if [ -z "$PATCH" ]; then
-            echo "No patch file found!"
-            exit 1
-          fi
-          echo "::set-output name=patch::$PATCH"
+    - name: Run Packer
+      run: |
+        packer validate packer-template.json
+        packer build packer-template.json
 
-      - name: Find Provisioning Script
-        id: find-script
-        run: |
-          SCRIPT=$(find . -type f -name "*.sh" | head -n 1)
-          if [ -z "$SCRIPT" ]; then
-            echo "No provisioning script found!"
-            exit 1
-          fi
-          echo "::set-output name=script::$SCRIPT"
-
-      - name: Copy Files
-        run: |
-          cp ${{ steps.find-script.outputs.script }} /tmp/apply_patch.sh
-          cp ${{ steps.find-patch.outputs.patch }} /tmp/my-patch.patch
-
-      - name: Build with Packer
-        run: packer build ${{ steps.find-template.outputs.template }}
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: built-image
-          path: output/
