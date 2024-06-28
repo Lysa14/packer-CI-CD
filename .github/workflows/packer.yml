@@ -41,7 +41,7 @@ jobs:
         {
           "builders": [
             {
-              "type": "outscale-ebs",
+              "type": "outscale-bsu",
               "access_key": "${{ secrets.OUTSCALE_ACCESS_KEY }}",
               "secret_key": "${{ secrets.OUTSCALE_SECRET_KEY }}",
               "region": "${{ secrets.OUTSCALE_REGION }}",
