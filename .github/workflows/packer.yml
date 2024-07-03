@@ -23,50 +23,53 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y unzip wget
         wget https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
-        unzip packer_1.7.8_linux_amd64.zip
-        sudo mv packer /usr/local/bin/
-        wget https://github.com/outscale/packer-plugin-outscale/releases/tag/v1.2.0/packer-plugin-outscale_v1.2.0_x5.0_linux_amd64.zip
-        unzip packer-plugin-outscale_v1.2.0_x5.0_linux_amd64.zip -d  ~/.packer.d/plugins
+        unzip ./packer_1.7.8_linux_amd64.zip
+        ls -R
 
-
-    - name: Set up Outscale credentials
-      run: |
-        mkdir -p ~/.osc
-        echo "[default]" > ~/.osc/config
-        echo "outscale_access_key_id = ${{ secrets.OUTSCALE_ACCESS_KEY }}" >> ~/.osc/config
-        echo "outscale_secret_access_key = ${{ secrets.OUTSCALE_SECRET_KEY }}" >> ~/.osc/config
-        echo "region = ${{ secrets.OUTSCALE_REGION }}" >> ~/.osc/config
+    # - name: Set up Outscale credentials
+    #   run: |
+    #     mkdir -p ~/.osc
+    #     echo "[default]" > ~/.osc/config
+    #     echo "outscale_access_key_id = ${{ secrets.OUTSCALE_ACCESS_KEY }}" >> ~/.osc/config
+    #     echo "outscale_secret_access_key = ${{ secrets.OUTSCALE_SECRET_KEY }}" >> ~/.osc/config
+    #     echo "region = ${{ secrets.OUTSCALE_REGION }}" >> ~/.osc/config
 
     - name: Create Packer template
       run: |
-        cat <<EOF > packer-template.json
-        {
-          "builders": [
-            {
-              "type": "outscale-bsu",
-              "access_key": "${{ secrets.OUTSCALE_ACCESS_KEY }}",
-              "secret_key": "${{ secrets.OUTSCALE_SECRET_KEY }}",
-              "region": "${{ secrets.OUTSCALE_REGION }}",
-              "source_ami": "ami-321efe20",
-              "instance_type": "t2.micro",
-              "ssh_username": "ec2-user",
-              "ami_name": "patched-omi-{{timestamp}}"
-            }
-          ],
-          "provisioners": [
-            {
-              "type": "shell",
-              "inline": [
-                "sudo mv /tmp/script.sh /opt/bootscript.sh",
-                "sudo mv /tmp/setup_boot.service /usr/lib/systemd/system/setup_boot.service",
-                "sudo systemctl enable setup_boot.service"
-              ]
-            }
-          ]
+        cat <<EOF > packer-template.pkr.hcl
+        build {
+          type = "outscale-bsu"
+          access_key = "${{ secrets.OUTSCALE_ACCESS_KEY }}"
+          secret_key = "${{ secrets.OUTSCALE_SECRET_KEY }}"
+          region = "${{ secrets.OUTSCALE_REGION }}"
+          source_omi = "ami-321efe20"
+          vm_type = "t2.micro"
+          ssh_username = "ubuntu"
+          omi_name = "packer-quick-start {{timestamp}}"
+          tags = {
+            OS_Version = "Debian"
+            Release = "Latest"
+            Base_OMI_Name = "{{ .SourceOMIName }}"
+            Extra = "{{ .SourceOMITags.TagName }}"
+          }
         }
+         
         EOF
+
+#     {
+#       "type": "outscale-bsu",
+#       "access_key": "${{ secrets.OUTSCALE_ACCESS_KEY }}",
+#       "secret_key": "${{ secrets.OUTSCALE_SECRET_KEY }}",
+#       "region": "${{ secrets.OUTSCALE_REGION }}",
+#       "source_ami": "ami-321efe20",
+#       "instance_type": "t2.micro",
+#       "ssh_username": "ec2-user",
+#       "ami_name": "patched-omi-{{timestamp}}"
+#     }
 
     - name: Run Packer
       run: |
-        packer validate packer-template.json
-        packer build packer-template.json
+        packer plugins install https://github.com/outscale/packer-plugin-outscale
+        packer init .
+        packer validate packer-template.pkr.hcl
+        packer build packer-template.pkr.hcl
