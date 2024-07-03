@@ -46,12 +46,7 @@ jobs:
           vm_type = "t2.micro"
           ssh_username = "ubuntu"
           omi_name = "packer-quick-start {{timestamp}}"
-          tags = {
-            OS_Version = "Debian"
-            Release = "Latest"
-            Base_OMI_Name = "{{ .SourceOMIName }}"
-            Extra = "{{ .SourceOMITags.TagName }}"
-          }
+          
         }
          
         EOF
