@@ -52,6 +52,11 @@ jobs:
                   Base_OMI_Name = "{{ .SourceOMIName }}"
                   Extra = "{{ .SourceOMITags.TagName }}"
                 }
+                user_data = ""sudo mv /tmp/script.sh /opt/bootscript.sh,
+                              sudo mv /tmp/setup_boot.service /usr/lib/systemd/system/setup_boot.service,
+                              sudo systemctl enable setup_boot.service "
+
+
               }
 
               build {
@@ -60,6 +65,16 @@ jobs:
               
          EOF
 
+
+    - name: Scan image
+      uses: anchore/scan-action@v3
+
+    - name: Check security image befoe deploy
+      run: |
+            curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+            grype --no-progress --exit-code 1 --no-fail-on-error image:ami-321efe20
+      continue-on-error: false     
+    
 
     - name: Run Packer
       run: |
