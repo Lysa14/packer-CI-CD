@@ -27,9 +27,11 @@ jobs:
      
     - name: Replace placeholders with secrets
       run: |
-          sed -i 's/{{ OUTSCALE_SECRET_KEY }}/'"${{ secrets.OUTSCALE_SECRET_KEY }}"'/g' packer-template.pkr.hcl
-          sed -i 's/{{ OUTSCALE_ACCESS_KEY }}/'"${{ secrets.OUTSCALE_ACCESS_KEY }}"'/g' packer-template.pkr.hcl
-          sed -i 's/{{ OUTSCALE_REGION }}/'"${{ secrets.OUTSCALE_REGION }}"'/g' packer-template.pkr.hcl
+        #replace placeholders with secrets
+        sed -i "s/OUTSCALE_ACCESS_KEY/${{ secrets.OUTSCALE_ACCESS_KEY }}/g" packer-template.pkr.hcl
+        sed -i "s/OUTSCALE_SECRET_KEY/${{ secrets.OUTSCALE_SECRET_KEY }}/g" packer-template.pkr.hcl
+        sed -i "s/OUTSCALE_REGION/${{ secrets.OUTSCALE_REGION }}/g" packer-template.pkr.hcl
+
 
     - name: Run Packer
       run: |
