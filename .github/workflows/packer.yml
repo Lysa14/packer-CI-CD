@@ -69,7 +69,7 @@ jobs:
 
     - name: Run Packer
       run: |
-        packer plugins install https://github.com/outscale/packer-plugin-outscale
+        packer plugins install github.com/outscale/packer-plugin-outscale
         packer init .
         packer validate packer-template.pkr.hcl
         packer build packer-template.pkr.hcl
