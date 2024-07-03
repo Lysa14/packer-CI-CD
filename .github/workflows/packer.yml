@@ -36,20 +36,36 @@ jobs:
 
     - name: Create Packer template
       run: |
-        cat <<EOF > packer-template.pkr.hcl
-        build {
-          type = "outscale-bsu"
-          access_key = "${{ secrets.OUTSCALE_ACCESS_KEY }}"
-          secret_key = "${{ secrets.OUTSCALE_SECRET_KEY }}"
-          region = "${{ secrets.OUTSCALE_REGION }}"
-          source_omi = "ami-321efe20"
-          vm_type = "t2.micro"
-          ssh_username = "ubuntu"
-          omi_name = "packer-quick-start {{timestamp}}"
-          
-        }
-         
-        EOF
+         cat <<EOF > packer-template.pkr.hcl
+              packer {
+                required_plugins {
+                  outscale = {
+                    version = ">= 1.2.0"
+                    source = "github.com/outscale/outscale"
+                  }
+                }
+              }
+
+              source "outscale-bsu" "github-actions" {
+                access_key  = "${{ secrets.OUTSCALE_ACCESS_KEY }}"
+                secret_key  = "${{ secrets.OUTSCALE_SECRET_KEY }}"
+                region      = "${{ secrets.OUTSCALE_REGION }}"
+                source_omi  = "ami-321efe20"
+                vm_type     = "t2.micro"
+                ssh_username = "github-actions"
+                omi_name    = "packer-quick-start {{timestamp}}"
+                tags = {
+                  OS_Version     = "Debian"
+                  Release        = "Latest"
+                  Base_OMI_Name  = "{{ .SourceOMIName }}"
+                  Extra          = "{{ .SourceOMITags.TagName }}"
+                }
+              }
+
+              build {
+                sources = ["source.outscale-bsu.github-actions"]
+              }
+              EOF
 
 #     {
 #       "type": "outscale-bsu",
@@ -61,6 +77,22 @@ jobs:
 #       "ssh_username": "ec2-user",
 #       "ami_name": "patched-omi-{{timestamp}}"
 #     }
+
+# cat <<EOF > packer-template.pkr.hcl
+# build {
+#   type = "outscale-bsu"
+#   access_key = "${{ secrets.OUTSCALE_ACCESS_KEY }}"
+#   secret_key = "${{ secrets.OUTSCALE_SECRET_KEY }}"
+#   region = "${{ secrets.OUTSCALE_REGION }}"
+#   source_omi = "ami-321efe20"
+#   vm_type = "t2.micro"
+#   ssh_username = "ubuntu"
+#   omi_name = "packer-quick-start {{timestamp}}"
+  
+# }
+ 
+# EOF
+
 
     - name: Run Packer
       run: |
