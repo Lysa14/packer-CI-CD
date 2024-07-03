@@ -69,7 +69,7 @@ jobs:
     - name: Check security image befoe deploy
       run: |
             curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
-            grype --no-progress --exit-code 1 --no-fail-on-error image:ami-321efe20
+            grype  --exit-code 1 --no-fail-on-error image:ami-321efe20
       continue-on-error: false     
     
 
