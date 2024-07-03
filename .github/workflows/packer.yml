@@ -51,15 +51,14 @@ jobs:
                   Release = "Latest"
                   Base_OMI_Name = "{{ .SourceOMIName }}"
                   Extra = "{{ .SourceOMITags.TagName }}"
-                
-                user_data = <<EOF_USERDATA
+                 }
+                  
+                user_data = <<EOF_USERDATA 
                           sudo mv /tmp/script.sh /opt/bootscript.sh
                           sudo mv /tmp/setup_boot.service /usr/lib/systemd/system/setup_boot.service
                           sudo systemctl enable setup_boot.service
                         EOF_USERDATA
-
-
-              }
+             
 
               build {
                 sources = ["source.outscale-bsu.github-actions"]
