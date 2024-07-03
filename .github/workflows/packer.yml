@@ -24,49 +24,7 @@ jobs:
         sudo apt-get install -y unzip wget
         wget https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
         unzip ./packer_1.7.8_linux_amd64.zip
-        ls -R
-
-    - name: Create Packer template
-      run: |
-         cat <<EOF > packer-template.pkr.hcl
-              packer {
-                required_plugins {
-                  outscale = {
-                    version = ">= 1.2.0"
-                    source = "github.com/outscale/outscale"
-                  }
-                }
-              }
-
-              source "outscale-bsu" "github-actions" {
-                access_key = "${{ secrets.OUTSCALE_ACCESS_KEY }}"
-                secret_key = "${{ secrets.OUTSCALE_SECRET_KEY }}"
-                region = "${{ secrets.OUTSCALE_REGION }}"
-                source_omi = "ami-321efe20"
-                vm_type = "t2.micro"
-                ssh_username = "outscale"
-                omi_name = "packer-quick-start {{timestamp}}"
-                tags = {
-                  OS_Version = "Debian"
-                  Release = "Latest"
-                  Base_OMI_Name = "{{ .SourceOMIName }}"
-                  Extra = "{{ .SourceOMITags.TagName }}"
-                 }
-                  
-                user_data = <<EOF_USERDATA 
-                          sudo mv /tmp/script.sh /opt/bootscript.sh
-                          sudo mv /tmp/setup_boot.service /usr/lib/systemd/system/setup_boot.service
-                          sudo systemctl enable setup_boot.service
-                        EOF_USERDATA
-             
-
-              build {
-                sources = ["source.outscale-bsu.github-actions"]
-              }
-              
-         EOF
-
-    
+     
 
     - name: Run Packer
       run: |
