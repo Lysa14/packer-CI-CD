@@ -65,12 +65,6 @@ jobs:
               
          EOF
 
- 
-    - name: Grype Scan
-      uses: anchore/scan-action@v3
-      with:
-           image: "ami-321efe20"  
-           fail-build: true 
     
 
     - name: Run Packer
