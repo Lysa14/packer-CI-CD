@@ -44,7 +44,6 @@ jobs:
                 region = "${{ secrets.OUTSCALE_REGION }}"
                 source_omi = "ami-321efe20"
                 vm_type = "t2.micro"
-                ssh_username = "github-actions"
                 omi_name = "packer-quick-start {{timestamp}}"
                 tags = {
                   OS_Version = "Debian"
