@@ -66,9 +66,6 @@ jobs:
          EOF
 
 
-    - name: Scan image
-      uses: anchore/scan-action@v3
-
     - name: Check security image befoe deploy
       run: |
             curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
