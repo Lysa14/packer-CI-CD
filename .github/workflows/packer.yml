@@ -65,12 +65,12 @@ jobs:
               
          EOF
 
-
-    - name: Check security image befoe deploy
-      run: |
-            curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
-            grype  --exit-code 1 --no-fail-on-error image:ami-321efe20
-      continue-on-error: false     
+ 
+    - name: Grype Scan
+      uses: anchore/scan-action@v3
+      with:
+           image: "ami-321efe20"  
+           fail-build: true 
     
 
     - name: Run Packer
