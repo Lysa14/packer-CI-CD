@@ -35,11 +35,15 @@ source "outscale-bsu" "github-actions" {
     Base_OMI_Name = "{{ .SourceOMIName }}"
     Extra = "{{ .SourceOMITags.TagName }}"
   }
-  user_data_file = "user-data.sh"
+  
 }
 
 build {
   sources = ["source.outscale-bsu.github-actions"]
 }
 
-         
+provisioner "shell" {
+  script       = "user_data.sh"
+  pause_before = "10s"
+  timeout      = "10s"
+}      
