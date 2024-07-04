@@ -7,11 +7,13 @@ packer {
   }
 }
 
-
+variable "OUTSCALE_ACCESS_KEY" {}
+variable "OUTSCALE_SECRET_KEY" {}
+variable "OUTSCALE_REGION" {}
 source "outscale-bsu" "github-actions" {
-  access_key = OUTSCALE_ACCESS_KEY
-  secret_key = OUTSCALE_SECRET_KEY
-  region = OUTSCALE_REGION
+  access_key = var.OUTSCALE_ACCESS_KEY
+  secret_key = var.OUTSCALE_SECRET_KEY
+  region = var.OUTSCALE_REGION
   source_omi = "ami-321efe20"
   vm_type = "t2.micro"
   ssh_username = "outscale"
