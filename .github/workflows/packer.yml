@@ -25,12 +25,12 @@ jobs:
         wget https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
         unzip ./packer_1.7.8_linux_amd64.zip
      
-    - name: Replace placeholders with secrets
-      run: |
-        #replace placeholders with secrets
-        sed -i "s/OUTSCALE_ACCESS_KEY/${{ secrets.OUTSCALE_ACCESS_KEY }}/g" packer-template.pkr.hcl
-        sed -i "s/OUTSCALE_SECRET_KEY/${{ secrets.OUTSCALE_SECRET_KEY }}/g" packer-template.pkr.hcl
-        sed -i "s/OUTSCALE_REGION/${{ secrets.OUTSCALE_REGION }}/g" packer-template.pkr.hcl
+    # - name: Replace placeholders with secrets
+    #   run: |
+    #     #replace placeholders with secrets
+    #     sed -i "s/OUTSCALE_ACCESS_KEY/${{ secrets.OUTSCALE_ACCESS_KEY }}/g" packer-template.pkr.hcl
+    #     sed -i "s/OUTSCALE_SECRET_KEY/${{ secrets.OUTSCALE_SECRET_KEY }}/g" packer-template.pkr.hcl
+    #     sed -i "s/OUTSCALE_REGION/${{ secrets.OUTSCALE_REGION }}/g" packer-template.pkr.hcl
 
 
     # - name: Run Packer
@@ -51,7 +51,7 @@ jobs:
         packer init .
         packer validate packer-template.pkr.hcl
         packer build \
-          -var "OUTSCALE_ACCESS_KEY=${{ env.OUTSCALE_ACCESS_KEY }}" \
-          -var "OUTSCALE_SECRET_KEY=${{ env.OUTSCALE_SECRET_KEY }}" \
-          -var "OUTSCALE_REGION=${{ env.OUTSCALE_REGION }}" \
+          -var "OUTSCALE_ACCESS_KEY=${{ secrets.OUTSCALE_ACCESS_KEY }}" \
+          -var "OUTSCALE_SECRET_KEY=${{ secrets.OUTSCALE_SECRET_KEY }}" \
+          -var "OUTSCALE_REGION=${{ secrets.OUTSCALE_REGION }}" \
           packer-template.pkr.hcl
