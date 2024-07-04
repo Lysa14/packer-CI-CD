@@ -50,4 +50,7 @@ jobs:
         packer plugins install github.com/outscale/outscale
         packer init .
         packer validate packer-template.pkr.hcl
-        packer build packer-template.pkr.hcl
+        packer build -var "OUTSCALE_ACCESS_KEY=${OUTSCALE_ACCESS_KEY}" \
+                     -var "OUTSCALE_SECRET_KEY=${OUTSCALE_SECRET_KEY}" \
+                     -var "OUTSCALE_REGION=${OUTSCALE_REGION}" \
+                     packer-template.pkr.hcl
