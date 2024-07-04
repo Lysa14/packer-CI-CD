@@ -57,5 +57,5 @@ jobs:
       run: |
         packer plugins install github.com/outscale/outscale
         packer init .
-        packer validate packer-template.pkr.hcl
-        packer build  packer-template.pkr.hcl
+        packer validate .
+        packer build .
