@@ -3,7 +3,7 @@ name: Build and Publish OMI
 on:
   push:
     branches:
-      - packer
+      - main
 
 jobs:
   build-and-publish:
