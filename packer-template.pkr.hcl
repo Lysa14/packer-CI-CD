@@ -40,10 +40,13 @@ source "outscale-bsu" "github-actions" {
 
 build {
   sources = ["source.outscale-bsu.github-actions"]
-}
 
 provisioner "shell" {
   script       = "user_data.sh"
   pause_before = "10s"
   timeout      = "10s"
-}      
+}    
+
+}
+
+  
