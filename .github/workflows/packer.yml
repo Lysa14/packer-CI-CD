@@ -40,17 +40,22 @@ jobs:
     #     packer validate packer-template.pkr.hcl
     #     packer build packer-template.pkr.hcl
 
+    - name: Set Packer variables
+      run: |
+        echo "variable \"OUTSCALE_ACCESS_KEY\" {
+          default = \"${{ secrets.OUTSCALE_ACCESS_KEY }}\"
+        }" > variables.pkr.hcl
+        echo "variable \"OUTSCALE_SECRET_KEY\" {
+          default = \"${{ secrets.OUTSCALE_SECRET_KEY }}\"
+        }" >> variables.pkr.hcl
+        echo "variable \"OUTSCALE_REGION\" {
+          default = \"${{ secrets.OUTSCALE_REGION }}\"
+        }" >> variables.pkr.hcl
+
 
     - name: Run Packer
-      env:
-        OUTSCALE_ACCESS_KEY: ${{ secrets.OUTSCALE_ACCESS_KEY }}
-        OUTSCALE_SECRET_KEY: ${{ secrets.OUTSCALE_SECRET_KEY }}
-        OUTSCALE_REGION: ${{ secrets.OUTSCALE_REGION }}
       run: |
         packer plugins install github.com/outscale/outscale
         packer init .
-        packer validate packer-template.pkr.hcl
-        packer build -var "OUTSCALE_ACCESS_KEY=${OUTSCALE_ACCESS_KEY}" \
-                     -var "OUTSCALE_SECRET_KEY=${OUTSCALE_SECRET_KEY}" \
-                     -var "OUTSCALE_REGION=${OUTSCALE_REGION}" \
-                     packer-template.pkr.hcl
+        packer validate -var-file="variables.pkr.hcl" packer-template.pkr.hcl
+        packer build -var-file="variables.pkr.hcl" packer-template.pkr.hcl
