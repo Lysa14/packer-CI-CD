@@ -7,20 +7,7 @@ packer {
   }
 }
 
-variable "OUTSCALE_ACCESS_KEY" {
-  type = string
-  default = ""
-}
 
-variable "OUTSCALE_SECRET_KEY" {
-  type = string
-  default = ""
-}
-
-variable "OUTSCALE_REGION" {
-  type = string
-  default = ""
-}
 source "outscale-bsu" "github-actions" {
   access_key = var.OUTSCALE_ACCESS_KEY
   secret_key = var.OUTSCALE_SECRET_KEY
