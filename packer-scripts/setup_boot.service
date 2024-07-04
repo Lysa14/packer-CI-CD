@@ -1,0 +1,9 @@
+[Unit]
+Description=Execute user-datas to setup the machine
+After=network-online.target
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/usr/bin/bash /opt/bootscript.sh
+[Install]
+WantedBy=multi-user.target

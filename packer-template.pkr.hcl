@@ -26,13 +26,29 @@ source "outscale-bsu" "github-actions" {
 }
 
 build {
-  sources = ["source.outscale-bsu.github-actions"]
+  sources = ["source.outscale-bsu.github-actions"] 
+
+provisioner "file" {
+  source      = "packer-scripts/script.sh"
+  destination = "/tmp/script.sh"
+}
+provisioner "file" {
+  source      = "packer-scripts/setup_boot.service"
+  destination = "/tmp/setup_boot.service"
+}
 
 provisioner "shell" {
-  script       = "user_data.sh"
-  pause_before = "10s"
-  timeout      = "10s"
-}    
+inline = [
+"sudo mv /tmp/script.sh /opt/bootscript.sh",
+"sudo mv /tmp/setup_boot.service /usr/lib/systemd/system/setup_boot.service",
+"sudo systemctl enable setup_boot.service"
+
+]
+}
+
+
+
+
 
 }
 
