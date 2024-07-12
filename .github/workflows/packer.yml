@@ -12,6 +12,7 @@ jobs:
       matrix:
         account: 
           - CLIENT1
+          - CLIENT2
         
         image-id: ["ami-321efe20"]
         os_version: ["Debian"]
