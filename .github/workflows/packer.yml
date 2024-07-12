@@ -11,8 +11,8 @@ jobs:
     strategy:
       matrix:
         image-id: ["ami-321efe20"]
-        OS_Version: ["Debian"]
-        Release: ["Latest"]
+        os_version: ["Debian"]
+        release: ["Latest"]
 
             
     steps:
@@ -45,14 +45,14 @@ jobs:
    
     - name: Set images variables
       run: |
-        echo "variable \"image_id\" {
+        echo "variable \"image-id\" {
           default = \"${{ matrix.image-id }}\"
         }" >> variables.pkr.hcl
-        echo "variable \"OS_Version\" {
-          default = \"${{ matrix.OS_Version }}\"
+        echo "variable \"os_version\" {
+          default = \"${{ matrix.os_version }}\"
         }" >> variables.pkr.hcl
-        echo "variable \"Release\" {
-          default = \"${{ matrix.Release }}\"
+        echo "variable \"release\" {
+          default = \"${{ matrix.release }}\"
         }" >> variables.pkr.hcl
 
         

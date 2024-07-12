@@ -17,8 +17,8 @@ source "outscale-bsu" "github-actions" {
   ssh_username = "outscale"
   omi_name = "packer-quick-start {{timestamp}}"
   tags = {
-    OS_Version = var.Os_version
-    Release = var.Release
+    OS_Version = var.os_version
+    Release = var.release
     Base_OMI_Name = "{{ .SourceOMIName }}"
     Extra = "{{ .SourceOMITags.TagName }}"
   }
