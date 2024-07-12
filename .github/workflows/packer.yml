@@ -3,12 +3,18 @@ name: Build and Publish OMI
 on:
   push:
     branches:
-      - main
+      - packer
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image-id: ["ami-321efe20"]
+        OS_Version: ["Debian"]
+        Release: ["Latest"]
 
+            
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -36,7 +42,20 @@ jobs:
         echo "variable \"OUTSCALE_REGION\" {
           default = \"${{ secrets.OUTSCALE_REGION }}\"
         }" >> variables.pkr.hcl
+   
+    - name: Set images variables
+      run: |
+        echo "variable \"image_id\" {
+          default = \"${{ matrix.image-id }}\"
+        }" >> variables.pkr.hcl
+        echo "variable \"OS_Version\" {
+          default = \"${{ matrix.OS_Version }}\"
+        }" >> variables.pkr.hcl
+        echo "variable \"Release\" {
+          default = \"${{ matrix.Release }}\"
+        }" >> variables.pkr.hcl
 
+        
 
     - name: Run Packer
       run: |
