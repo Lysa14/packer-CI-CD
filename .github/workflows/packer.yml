@@ -11,7 +11,8 @@ jobs:
     strategy:
       matrix:
         account: 
-          - {access_key: OUTSCALE_ACCESS_KEY, secret_key: OUTSCALE_SECRET_KEY, region: OUTSCALE_REGION}
+          - CLIENT1
+        
         image-id: ["ami-321efe20"]
         os_version: ["Debian"]
         release: ["Latest"]
@@ -36,17 +37,23 @@ jobs:
         wget https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
         unzip ./packer_1.7.8_linux_amd64.zip
      
+
+
     - name: Set Packer variables
+      env:
+        OUTSCALE_ACCESS_KEY: ${{ secrets.OUTSCALE_ACCESS_KEY}} + ${{matrix.account}}
+        OUTSCALE_SECRET_KEY: ${{ secrets.OUTSCALE_SECRET_KEY}} + ${{matrix.account}}
+        OUTSCALE_REGION: ${{ secrets.OUTSCALE_REGION }}
       run: |
-        echo "variable \"OUTSCALE_ACCESS_KEY\" {
-          default = \"${{ matrix.account.access_key }}\"
-        }" > variables.pkr.hcl
-        echo "variable \"OUTSCALE_SECRET_KEY\" {
-          default = \"${{ matrix.account.secret_key }}\"
-        }" >> variables.pkr.hcl
-        echo "variable \"OUTSCALE_REGION\" {
-          default = \"${{ matrix.account.region }}\"
-        }" >> variables.pkr.hcl
+          echo "variable \"OUTSCALE_ACCESS_KEY\" {
+            default = \"${OUTSCALE_ACCESS_KEY}\"
+          }" > variables.pkr.hcl
+          echo "variable \"OUTSCALE_SECRET_KEY\" {
+            default = \"${OUTSCALE_SECRET_KEY}\"
+          }" >> variables.pkr.hcl
+          echo "variable \"OUTSCALE_REGION\" {
+            default = \"${OUTSCALE_REGION}\"
+          }" >> variables.pkr.hcl
    
     - name: Set images variables
       run: |
