@@ -6,7 +6,7 @@ on:
       account:
         description: 'Account to use for the build'
         required: true
-        default: 'OUTSCALE_ACCESS_KEY_CLIENT1'
+        default: 'CLIENT1'
       image-id:
         description: 'Image ID'
         required: true
