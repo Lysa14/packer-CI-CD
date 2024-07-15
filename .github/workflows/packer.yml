@@ -1,28 +1,30 @@
 name: Build and Publish OMI
 
 on:
-  push:
-    branches:
-      - packer
+  workflow_dispatch:
+    inputs:
+      account:
+        description: 'Account to use for the build'
+        required: true
+        default: 'CLIENT1'
+      image_id:
+        description: 'Image ID'
+        required: true
+        default: 'ami-321efe20'
+      os_version:
+        description: 'OS Version'
+        required: true
+        default: 'Debian'
+      release:
+        description: 'Release'
+        required: true
+        default: 'Latest'
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        account: 
-          - CLIENT1
-          
-        
-        image-id: ["ami-321efe20"]
-        os_version: ["Debian"]
-        release: ["Latest"]
 
-         
-
-         
     steps:
-
     - name: Checkout repository
       uses: actions/checkout@v2
 
@@ -37,34 +39,38 @@ jobs:
         sudo apt-get install -y unzip wget
         wget https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
         unzip ./packer_1.7.8_linux_amd64.zip
-     
 
-    - name: Set Packer variables
+    - name: Set environment variables
       env:
-        OUTSCALE_ACCESS_KEY: ${{ format('{0}_{1}', secrets.OUTSCALE_ACCESS_KEY, 'matrix.account') }}
-        OUTSCALE_SECRET_KEY: ${{ format('{0}_{1}', secrets.OUTSCALE_SECRET_KEY, 'matrix.account') }}
-        OUTSCALE_REGION: ${{ secrets.OUTSCALE_REGION }}
+        OUTSCALE_ACCESS_KEY: ${{ secrets['OUTSCALE_ACCESS_KEY_' + github.event.inputs.account] }}
+        OUTSCALE_SECRET_KEY: ${{ secrets['OUTSCALE_SECRET_KEY_' + github.event.inputs.account] }}
+        OUTSCALE_REGION: ${{ secrets['OUTSCALE_REGION_' + github.event.inputs.account] }}
       run: |
-          echo "variable \"OUTSCALE_ACCESS_KEY\" {
-            default = \"${OUTSCALE_ACCESS_KEY}\"
-          }" > variables.pkr.hcl
-          echo "variable \"OUTSCALE_SECRET_KEY\" {
-            default = \"${OUTSCALE_SECRET_KEY}\"
-          }" >> variables.pkr.hcl
-          echo "variable \"OUTSCALE_REGION\" {
-            default = \"${OUTSCALE_REGION}\"
-          }" >> variables.pkr.hcl
-   
-    - name: Set images variables
-      run: |
+        # Validation sans afficher les valeurs des secrets
+        if [ -z "$OUTSCALE_ACCESS_KEY" ]; then echo "OUTSCALE_ACCESS_KEY is not set"; exit 1; fi
+        if [ -z "$OUTSCALE_SECRET_KEY" ]; then echo "OUTSCALE_SECRET_KEY is not set"; exit 1; fi
+        if [ -z "$OUTSCALE_REGION" ]; then echo "OUTSCALE_REGION is not set"; exit 1; fi
+        echo "OUTSCALE_ACCESS_KEY is set"
+        echo "OUTSCALE_SECRET_KEY is set"
+        echo "OUTSCALE_REGION is set"
+
+        echo "variable \"OUTSCALE_ACCESS_KEY\" {
+          default = \"$OUTSCALE_ACCESS_KEY\"
+        }" > variables.pkr.hcl
+        echo "variable \"OUTSCALE_SECRET_KEY\" {
+          default = \"$OUTSCALE_SECRET_KEY\"
+        }" >> variables.pkr.hcl
+        echo "variable \"OUTSCALE_REGION\" {
+          default = \"$OUTSCALE_REGION\"
+        }" >> variables.pkr.hcl
         echo "variable \"image-id\" {
-          default = \"${{ matrix.image-id }}\"
+          default = \"${{ github.event.inputs.image_id }}\"
         }" >> variables.pkr.hcl
         echo "variable \"os_version\" {
-          default = \"${{ matrix.os_version }}\"
+          default = \"${{ github.event.inputs.os_version }}\"
         }" >> variables.pkr.hcl
         echo "variable \"release\" {
-          default = \"${{ matrix.release }}\"
+          default = \"${{ github.event.inputs.release }}\"
         }" >> variables.pkr.hcl
 
     - name: Run Packer
@@ -73,3 +79,4 @@ jobs:
         packer init .
         packer validate .
         packer build .
+
