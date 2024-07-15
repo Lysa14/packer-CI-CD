@@ -7,7 +7,7 @@ on:
         description: 'Account to use for the build'
         required: true
         default: 'OUTSCALE_ACCESS_KEY_CLIENT1'
-      image_id:
+      image-id:
         description: 'Image ID'
         required: true
         default: 'ami-321efe20'
@@ -23,17 +23,6 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        account: 
-          - CLIENT1
-          - CLIENT2
-        
-        image-id: ["ami-321efe20"]
-        os_version: ["Debian"]
-        release: ["Latest"]
-
-         
 
          
     steps:
@@ -74,13 +63,13 @@ jobs:
     - name: Set images variables
       run: |
         echo "variable \"image-id\" {
-          default = \"${{ matrix.image-id }}\"
+          default = \"${{ github.event.inputs.image-id }}\"
         }" >> variables.pkr.hcl
         echo "variable \"os_version\" {
-          default = \"${{ matrix.os_version }}\"
+          default = \"${{ github.event.inputs.os_version }}\"
         }" >> variables.pkr.hcl
         echo "variable \"release\" {
-          default = \"${{ matrix.release }}\"
+          default = \"${{ github.event.inputs.release }}\"
         }" >> variables.pkr.hcl
 
     - name: Run Packer
