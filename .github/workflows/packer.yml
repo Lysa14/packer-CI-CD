@@ -46,8 +46,8 @@ jobs:
 
     - name: Set Packer variables
       env:
-        OUTSCALE_ACCESS_KEY: ${{ format('{0}_{1}', 'OUTSCALE_ACCESS_KEY_', github.event.inputs.account) }}
-        OUTSCALE_SECRET_KEY: ${{ format('{0}_{1}', 'OUTSCALE_SECRET_KEY_', github.event.inputs.account) }}
+        OUTSCALE_ACCESS_KEY: ${{ format('{0}_{1}', 'OUTSCALE_ACCESS_KEY', github.event.inputs.account) }}
+        OUTSCALE_SECRET_KEY: ${{ format('{0}_{1}', 'OUTSCALE_SECRET_KEY', github.event.inputs.account) }}
         OUTSCALE_REGION: ${{ secrets.OUTSCALE_REGION }}
       run: |
           echo "variable \"OUTSCALE_ACCESS_KEY\" {
