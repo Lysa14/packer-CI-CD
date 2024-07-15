@@ -24,32 +24,43 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
 
-         
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Set up Python environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
 
-    - name: Set up Python environment
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
+      - name: Install required tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip wget
+          wget https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
+          unzip ./packer_1.7.8_linux_amd64.zip
 
-    - name: Install required tools
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y unzip wget
-        wget https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
-        unzip ./packer_1.7.8_linux_amd64.zip
-     
+      - name: Set secrets names
+        id: set_secret_names
+        run: |
+          echo "OUTSCALE_ACCESS_KEY_$(echo '${{ github.event.inputs.account }}')" >> VAR_OUTSCALE_ACCESS_KEY
+          echo "OUTSCALE_SECRET_KEY_$(echo '${{ github.event.inputs.account }}')" >> VAR_OUTSCALE_SECRET_KEY
+        shell: bash
 
+      - name: Read secret names
+        id: read_secret_names
+        run: |
+          VAR_OUTSCALE_ACCESS_KEY=$(cat VAR_OUTSCALE_ACCESS_KEY)
+          VAR_OUTSCALE_SECRET_KEY=$(cat VAR_OUTSCALE_SECRET_KEY)
+          echo "::set-output name=OUTSCALE_ACCESS_KEY::$VAR_OUTSCALE_ACCESS_KEY"
+          echo "::set-output name=OUTSCALE_SECRET_KEY::$VAR_OUTSCALE_SECRET_KEY"
 
-    - name: Set Packer variables
-      env:
-        OUTSCALE_ACCESS_KEY: ${{ format('{0}_{1}', 'OUTSCALE_ACCESS_KEY', github.event.inputs.account) }}
-        OUTSCALE_SECRET_KEY: ${{ format('{0}_{1}', 'OUTSCALE_SECRET_KEY', github.event.inputs.account) }}
-        OUTSCALE_REGION: ${{ secrets.OUTSCALE_REGION }}
-      run: |
+      - name: Set Packer variables
+        env:
+          OUTSCALE_ACCESS_KEY: ${{ steps.read_secret_names.outputs.OUTSCALE_ACCESS_KEY }}
+          OUTSCALE_SECRET_KEY: ${{ steps.read_secret_names.outputs.OUTSCALE_SECRET_KEY }}
+          OUTSCALE_REGION: ${{ secrets.OUTSCALE_REGION }}
+        run: |
           echo "variable \"OUTSCALE_ACCESS_KEY\" {
             default = \"${OUTSCALE_ACCESS_KEY}\"
           }" > variables.pkr.hcl
@@ -59,22 +70,22 @@ jobs:
           echo "variable \"OUTSCALE_REGION\" {
             default = \"${OUTSCALE_REGION}\"
           }" >> variables.pkr.hcl
-   
-    - name: Set images variables
-      run: |
-        echo "variable \"image-id\" {
-          default = \"${{ github.event.inputs.image-id }}\"
-        }" >> variables.pkr.hcl
-        echo "variable \"os_version\" {
-          default = \"${{ github.event.inputs.os_version }}\"
-        }" >> variables.pkr.hcl
-        echo "variable \"release\" {
-          default = \"${{ github.event.inputs.release }}\"
-        }" >> variables.pkr.hcl
 
-    - name: Run Packer
-      run: |
-        packer plugins install github.com/outscale/outscale
-        packer init .
-        packer validate .
-        packer build .
+      - name: Set images variables
+        run: |
+          echo "variable \"image-id\" {
+            default = \"${{ github.event.inputs.image-id }}\"
+          }" >> variables.pkr.hcl
+          echo "variable \"os_version\" {
+            default = \"${{ github.event.inputs.os_version }}\"
+          }" >> variables.pkr.hcl
+          echo "variable \"release\" {
+            default = \"${{ github.event.inputs.release }}\"
+          }" >> variables.pkr.hcl
+
+      - name: Run Packer
+        run: |
+          packer plugins install github.com/outscale/outscale
+          packer init .
+          packer validate .
+          packer build .
