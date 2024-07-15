@@ -12,7 +12,7 @@ jobs:
       matrix:
         account: 
           - CLIENT1
-          - CLIENT2
+          
         
         image-id: ["ami-321efe20"]
         os_version: ["Debian"]
@@ -39,11 +39,10 @@ jobs:
         unzip ./packer_1.7.8_linux_amd64.zip
      
 
-
     - name: Set Packer variables
       env:
-        OUTSCALE_ACCESS_KEY: ${{ secrets.OUTSCALE_ACCESS_KEY}} + ${{matrix.account}}
-        OUTSCALE_SECRET_KEY: ${{ secrets.OUTSCALE_SECRET_KEY}} + ${{matrix.account}}
+        OUTSCALE_ACCESS_KEY: "${{ secrets.OUTSCALE_ACCESS_KEY}}_${{matrix.account}}"
+        OUTSCALE_SECRET_KEY: "${{ secrets.OUTSCALE_SECRET_KEY }}_${{ matrix.account }}"
         OUTSCALE_REGION: ${{ secrets.OUTSCALE_REGION }}
       run: |
           echo "variable \"OUTSCALE_ACCESS_KEY\" {
