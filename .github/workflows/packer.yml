@@ -50,13 +50,13 @@ jobs:
 
         shell: bash
 
-      # - name: Read secret names
-      #   id: read_secret_names
-      #   run: |
-      #     VAR_OUTSCALE_ACCESS_KEY=$(cat VAR_OUTSCALE_ACCESS_KEY)
-      #     VAR_OUTSCALE_SECRET_KEY=$(cat VAR_OUTSCALE_SECRET_KEY)
-      #     echo "::set-output name=OUTSCALE_ACCESS_KEY::$VAR_OUTSCALE_ACCESS_KEY"
-      #     echo "::set-output name=OUTSCALE_SECRET_KEY::$VAR_OUTSCALE_SECRET_KEY"
+      - name: Read secret names
+        id: read_secret_names
+        run: |
+          VAR_OUTSCALE_ACCESS_KEY=$(cat VAR_OUTSCALE_ACCESS_KEY)
+          VAR_OUTSCALE_SECRET_KEY=$(cat VAR_OUTSCALE_SECRET_KEY)
+          echo "::set-output name=OUTSCALE_ACCESS_KEY::$VAR_OUTSCALE_ACCESS_KEY"
+          echo "::set-output name=OUTSCALE_SECRET_KEY::$VAR_OUTSCALE_SECRET_KEY"
 
       - name: Set Packer variables
         env:
