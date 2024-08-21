@@ -45,8 +45,10 @@ jobs:
         run: |
           echo "OUTSCALE_ACCESS_KEY_$(echo '${{ github.event.inputs.account }}')" >> VAR_OUTSCALE_ACCESS_KEY
           echo "OUTSCALE_SECRET_KEY_$(echo '${{ github.event.inputs.account }}')" >> VAR_OUTSCALE_SECRET_KEY
-          echo "::set-output name=OUTSCALE_ACCESS_KEY::OUTSCALE_ACCESS_KEY_$(echo '${{ github.event.inputs.account }}')"
-          echo "::set-output name=OUTSCALE_SECRET_KEY::OUTSCALE_SECRET_KEY_$(echo '${{ github.event.inputs.account }}')"
+          echo VAR_OUTSCALE_ACCESS_KEY
+          echo VAR_OUTSCALE_SECRET_KEY
+        # echo "::set-output name=OUTSCALE_ACCESS_KEY::OUTSCALE_ACCESS_KEY_$(echo '${{ github.event.inputs.account }}')"
+        # echo "::set-output name=OUTSCALE_SECRET_KEY::OUTSCALE_SECRET_KEY_$(echo '${{ github.event.inputs.account }}')"
 
         shell: bash
 
@@ -58,6 +60,8 @@ jobs:
           echo "::set-output name=OUTSCALE_ACCESS_KEY::$VAR_OUTSCALE_ACCESS_KEY"
           echo "::set-output name=OUTSCALE_SECRET_KEY::$VAR_OUTSCALE_SECRET_KEY"
 
+    
+    
       - name: Set Packer variables
         env:
           OUTSCALE_ACCESS_KEY: ${{ steps.read_secret_names.outputs.OUTSCALE_ACCESS_KEY }}
