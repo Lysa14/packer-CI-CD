@@ -43,11 +43,12 @@ jobs:
 
 
       - name: Set secret names dynamically
-        run: |
-          OUTSCALE_ACCESS_KEY_NAME="OUTSCALE_ACCESS_KEY_${{ github.event.inputs.account }}"
-          OUTSCALE_SECRET_KEY_NAME="OUTSCALE_SECRET_KEY_${{ github.event.inputs.account }}"      
-          echo "OUTSCALE_ACCESS_KEY=${{ secrets[OUTSCALE_ACCESS_KEY_NAME] }}" >> $GITHUB_ENV
-          echo "OUTSCALE_SECRET_KEY=${{ secrets[OUTSCALE_SECRET_KEY_NAME] }}" >> $GITHUB_ENV
+        env:
+         OUTSCALE_ACCESS_KEY_NAME: OUTSCALE_ACCESS_KEY_${{ github.event.inputs.account }}
+         OUTSCALE_SECRET_KEY_NAME: OUTSCALE_SECRET_KEY_${{ github.event.inputs.account }} 
+        run: |  
+          echo "OUTSCALE_ACCESS_KEY=${{ secrets[env.OUTSCALE_ACCESS_KEY_NAME] }}" >> $GITHUB_ENV
+          echo "OUTSCALE_SECRET_KEY=${{ secrets[env.OUTSCALE_SECRET_KEY_NAME] }}" >> $GITHUB_ENV
 
       - name: Set Packer variables
         env:
