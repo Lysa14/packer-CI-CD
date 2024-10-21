@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       account:
-        description: 'Account to use for the build'
+        description: 'Account to use to build'
         required: true
         default: 'CLIENT1'
       image-id:
