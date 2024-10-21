@@ -13,7 +13,7 @@ source "outscale-bsu" "github-actions" {
   secret_key = var.OUTSCALE_SECRET_KEY
   region = var.OUTSCALE_REGION
   source_omi = var.image-id
-  vm_type = "t5.micro"
+  vm_type = "t2.micro"
   ssh_username = "outscale"
   omi_name = "packer-quick-start {{timestamp}}"
   tags = {
