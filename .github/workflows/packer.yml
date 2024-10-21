@@ -83,5 +83,5 @@ jobs:
           packer plugins install github.com/outscale/outscale
           packer init .
           packer validate .
-          packer -debug build .
+          packer build -debug  .
           
