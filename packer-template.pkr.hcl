@@ -1,7 +1,7 @@
 packer {
   required_plugins {
     outscale = {
-      version = ">= 1.2.0"
+      version = ">= 1.8.3"
       source = "github.com/outscale/outscale"
     }
   }
